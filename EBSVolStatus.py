@@ -11,12 +11,15 @@ from pprint import pprint
 ec2 = boto3.client("ec2")
 response = ec2.describe_volumes()
 volumesbyid = {}
+volumebyinsvol = {}
 volumestatuses = {'ok': 0, 'impaired': 1, 'warning': 2, 'passed': 3, 'insufficient-data': 4}
 volumestates = {'available': 0, 'creating': 1, 'deleted': 2, 'deleting': 3, 'in-use': 4}
 volumes = {}
 
+
 for volume in response['Volumes']:
     VolumeId = volume['VolumeId']
+    Attach = volume['Attachments']
     info = volumes.setdefault(VolumeId, {})
     info['volume_state'] = volume['State']
     #    info['InstanceID'] = volume['InstanceId']
@@ -25,6 +28,11 @@ for volume in response['Volumes']:
         statecode = volumestates.get(VolumeStatus, -1)
         info2 = volumesbyid.setdefault(volid, {})
         info2['volume_state'] = statecode
+        for k in Attach:
+           InstanceId = k['InstanceId']
+           info3 = volumesbyid.setdefault(volid, {})
+           info3['InstanceId'] = InstanceId
+
 
 response = ec2.describe_volume_status()
 
