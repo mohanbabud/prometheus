@@ -63,8 +63,8 @@ for x,v in volumesbyid.items():
             cloudwatch.put_metric_data(Namespace=namespace, MetricData=metrics)
 
 [default]
-aws_access_key_id = AKIA4BKIPYPIFTNR5LPI
-aws_secret_access_key = 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
+AKIA4BKIPYPIFTNR5LPI
+elJdEjzElSAIf43SU+zOk1DokWFLxI18aJs4giUg
 region = us-east-1
 output = json
 
