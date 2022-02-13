@@ -7,7 +7,7 @@ import boto3
 import json
 import os
 from pprint import pprint
-
+cloudwatch = boto3.client("cloudwatch")
 ec2 = boto3.client("ec2")
 response = ec2.describe_volumes()
 volumesbyid = {}
@@ -60,20 +60,22 @@ for volume in response['VolumeStatuses']:
 
 for x,v in volumesbyid.items():
     if 'InstanceId' in v:
-        def put_ec2_volume_metrics():
+        print('yes')
+        def put_ec2_volume_metrics(vol_status,InstanceId,VolumeId,volume_state):
             namespace = 'EBS'
-            dimensions = [volumesbyid(Name='VolumeID',Value=VolumeId)]
-            metrics = [volumesbyid(MetricName='volume_state',value=volume_state,Dimesnsions=dimensions),]
+            dimensions = [dict(Name="VolumeID",Value=VolumeId)]
+            metrics = [dict(MetricName="volume_state",value=volume_state,Dimesnsions=dimensions),]
             cloudwatch.put_metric_data(Namespace=namespace,MetricData=metrics)
-            print('yes')
-    else:
 
-        def put_ec2_volume_metrics(volumeid,volum_state, volume_status):
-            namespace = 'EBS'
-            dimensions = [volumesbyid(Name='VolumeID', Value=VolumeId)]
-            metrics = [volumesbyid(MetricName='volume_state', value=volume_state, Dimesnsions=dimensions),]
-            print('No')
-            cloudwatch.put_metric_data(Namespace=namespace, MetricData=metrics)
+#    put_ec2_volume_metrics(vol_status,InstanceId,VolumeId,volume_state)
+    else:
+        print('No')
+#       def put_ec2_volume_metrics(volumeid,volum_state, volume_status):
+#            namespace = 'EBS'
+##            dimensions = [volumesbyid(Name='VolumeID', Value=VolumeId)]
+#            metrics = [volumesbyid(MetricName='volume_state', value=volume_state, Dimesnsions=dimensions),]
+
+#            cloudwatch.put_metric_data(Namespace=namespace, MetricData=metrics)
 
 
 print('=' * 30)
