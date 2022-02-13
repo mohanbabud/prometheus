@@ -62,11 +62,6 @@ for x,v in volumesbyid.items():
             print(metrics)
             cloudwatch.put_metric_data(Namespace=namespace, MetricData=metrics)
 
-[default]
-AKIA4BKIPYPIFTNR5LPI
-elJdEjzElSAIf43SU+zOk1DokWFLxI18aJs4giUg
-region = us-east-1
-output = json
 
 print('=' * 30)
 pprint(volumesbyid)
