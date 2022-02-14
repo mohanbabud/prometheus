@@ -7,16 +7,22 @@ import boto3
 import json
 import os
 from pprint import pprint
+# Initialize boto3 cloudwatch and ec2
+
 cloudwatch = boto3.client("cloudwatch")
 ec2 = boto3.client("ec2")
 response = ec2.describe_volumes()
+
+#Define Dictionary to store volume status and Volume States
 volumesbyid = {}
-volumebyinsvol = {}
+
+#Define Dictionary for State and Status Mapping to Numbers
+
 volumestatuses = {'ok': 0, 'impaired': 1, 'warning': 2, 'passed': 3, 'insufficient-data': 4}
 volumestates = {'available': 0, 'creating': 1, 'deleted': 2, 'deleting': 3, 'in-use': 4}
 volumes = {}
 
-
+#
 for volume in response['Volumes']:
     VolumeId = volume['VolumeId']
     Attach = volume['Attachments']
@@ -29,10 +35,9 @@ for volume in response['Volumes']:
         info2 = volumesbyid.setdefault(volid, {})
         info2['volume_state'] = statecode
         for k in Attach:
-           InstanceId = k['InstanceId']
-           info3 = volumesbyid.setdefault(volid, {})
-           info3['InstanceId'] = InstanceId
-
+            InstanceId = k['InstanceId']
+            info3 = volumesbyid.setdefault(volid, {})
+            info3['InstanceId'] = InstanceId
 
 response = ec2.describe_volume_status()
 
@@ -41,14 +46,11 @@ for volume in response['VolumeStatuses']:
     VolumeStatus = volume['VolumeStatus']
     details = VolumeStatus['Details']
     Status2 = VolumeStatus['Status']
-    info = volumesbyid.setdefault(VolumeId,{})
+    info = volumesbyid.setdefault(VolumeId, {})
     statecode = volumestatuses.get(Status2, -1)
     info['vol_status'] = statecode
 
-
-
-
-#*** Below Block is to get io-enabled status***##
+# *** Below Block is to get io-enabled status***##
 
 
 #    for detail in details:
@@ -57,18 +59,23 @@ for volume in response['VolumeStatuses']:
 #            statecode = volumestatuses.get(VolumeStatus, -1)
 #            info = volumesbyid.setdefault(VolumeId, {})
 #            info['volume_status'] = statecode
+items = volumesbyid.items()
 
-for x,v in volumesbyid.items():
+for x, v in volumesbyid.items():
     if 'InstanceId' in v:
-        print('yes')
-        def put_ec2_volume_metrics(VolumeId,InstanceId):
+        volume_state = v['volume_state']
+        volume_status = v['vol_status']
+        print('Yes')
 
-            namespace = 'EBS'
-            dimensions = [dict(Name="VolumeID",Value=VolumeId)]
-            metrics = [dict(MetricName="volume_state",value=InstanceId,Dimesnsions=dimensions),]
-            cloudwatch.put_metric_data(Namespace=namespace,MetricData=metrics)
-        put_ec2_volume_metrics(VolumeId, InstanceId)
 
+        def put_ec2_volume_metrics(VolumeId, InstanceId):
+
+            #            namespace = 'EBS'
+            #            dimensions = [dict(Name='InstanceId',value=InstanceId),dict(Name='VolumeID',Value=VolumeId)]
+            #            metrics = [(MetricName="volume_state","Value"=volume_state,Dimesnsions=dimensions)]
+            #            cloudwatch.put_metric_data(Namespace=namespace,MetricData=metrics)
+            #
+            print("yes")
     else:
         print('No')
 #       def put_ec2_volume_metrics(volumeid,volum_state, volume_status):
