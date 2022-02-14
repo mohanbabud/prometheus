@@ -61,13 +61,14 @@ for volume in response['VolumeStatuses']:
 for x,v in volumesbyid.items():
     if 'InstanceId' in v:
         print('yes')
-        def put_ec2_volume_metrics(vol_status,InstanceId,VolumeId,volume_state):
+        def put_ec2_volume_metrics(VolumeId,InstanceId):
+
             namespace = 'EBS'
             dimensions = [dict(Name="VolumeID",Value=VolumeId)]
-            metrics = [dict(MetricName="volume_state",value=volume_state,Dimesnsions=dimensions),]
+            metrics = [dict(MetricName="volume_state",value=InstanceId,Dimesnsions=dimensions),]
             cloudwatch.put_metric_data(Namespace=namespace,MetricData=metrics)
+        put_ec2_volume_metrics(VolumeId, InstanceId)
 
-#    put_ec2_volume_metrics(vol_status,InstanceId,VolumeId,volume_state)
     else:
         print('No')
 #       def put_ec2_volume_metrics(volumeid,volum_state, volume_status):
